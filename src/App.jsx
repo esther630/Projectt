@@ -3,7 +3,9 @@ import Footer from "../components/footer.jsx";
 import Navigation from "../components/navigation.jsx";
 import HomePage from "../components/home.jsx"; 
 import LoginPage from "../auth/login.jsx"; 
-import RegisterPage from"../auth/Register.jsx";   
+import RegisterPage from"../auth/Register.jsx"; 
+import ThankYou from "../auth/thankyou.jsx";  
+import WriterDashboardPage from "../components/WriterDash.jsx";
 
 function PublicLayout() {
   return (
@@ -28,9 +30,10 @@ function App() {
          
         </Route>
 
-        <Route path="/payments/Mcheckout" element={<makePayment />} />
+       <Route path="/components/WriterDash" element={<WriterDashboardPage />} />
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth/thankyou" element={<ThankYou />} />
       </Routes>
     </BrowserRouter>
   );

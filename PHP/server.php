@@ -1,28 +1,31 @@
 <?php
-header ('Access-control-Allow-origin: http://localhost:5173');
+header("Access-Control-Allow-Origin: http://localhost:5173");
 
-$conn = new mysqli("localhost", "root","","mawu");
 
-if(mysqli_connect_error()){
-    echo mysqli_connect_error();
-    exit();
-}else{
-    $username = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+$host="localhost";
+$username="root";
+$password="";
+$database="mawu";
 
-    $sql = "INSERT INTO users(username,email,password) VALUES('$username','$email','$password');";
-    $result = mysqli_query($conn,$sql);
+$connection=mysqli_connect($host,$username,$password);
 
-    if($result){
-        echo "sucessfully connected to database";
+if($connection){
+    //echo "connection successful<br>";
+} else{
+    die("connection unsucceful" .mysqli_connect_error());
+} 
+
+
+$query="CREATE DATABASE IF NOT EXISTS $database";
+mysqli_query($connection,$query); 
+
+$ret=mysqli_query($connection,$query);
+if($ret){
+    //echo"database created successfully <br>";
     }
     else{
-        echo "error connecting to database";
+        echo"error creating database".mysqli_error($connection);
     }
-}
 
-
-
-
+mysqli_select_db($connection,$database);
 ?>

@@ -1,12 +1,10 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { ErrorBoundary } from "react-error-boundary";
 import { useState } from "react";
-import { BookOpen, Eye, EyeOff, ArrowLeft, ArrowRight, Check, Radio, PenTool, } from "lucide-react";
-import MakePayment from "../payments/Mcheckout.jsx";
+import { BookOpen, ArrowLeft, ArrowRight, Check, PenTool, } from "lucide-react";
+import axios from "axios";
+import LoginPage from "./login";
 
-// Replace this with your actual fee data or a simple object
+
 const membershipFees = { budding: 5000, established: 10000, women_desk: 7000, religious: 5000, school_affiliate: 2000, non_fiction: 8000 };
 
  const MEMBERSHIP_TYPES = {
@@ -25,9 +23,22 @@ const membershipFees = { budding: 5000, established: 10000, women_desk: 7000, re
   ADMIN: 'admin'
 };
 
+const EmptyFields = ()=>{
+ if (!name || !email || !password || !confirmPassword) {
+  alert("Please fill in all required fields");
+  return false;
+}else if (password !== confirmPassword) {
+    alert("Passwords do not match");
+    return false;
+  }else{
+    handleSubmit();
+  }
+}
+
+
+
 export function RegisterPage() {
   const [step, setStep] = useState(1);
-  const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState({
     name: "", email: "", password: "", confirmPassword: "", role: "writer", membershipType: "", bio: "", agreeTerms: false,
   });
@@ -36,48 +47,78 @@ export function RegisterPage() {
 
   const updateFormData = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+const handleSubmit = async () => {
+  const { name, email, password, role } = formData;
+
+ 
+  if (!name || !email || !password) {
+    alert("Please fill in all required fields");
+    return;
+  }
+
+  if (role === "reader") {
     try {
-      if (formData.role === "writer") {
-        // Show payment component instead of redirecting
-        setShowPayment(true);
-      } else {
-      // Submit to register.php for readers
-      const response = await fetch("register.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-          membershipType: formData.membershipType || null,
-          bio: formData.bio,
-        }),
+      // Use JSON instead of FormData for simplicity
+      const url = "http://localhost/project/PHP/reg_reader.php";
+
+      const response = await axios.post(url, {
+        name,
+        email,
+        password,
       });
 
-      const result = await response.json();
-      if (result.success) {
-        // Redirect to login or dashboard
-        window.location.href = "/auth/login";
-      } else {
-        alert("Registration failed: " + result.message);
-      }
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("An error occurred during registration");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      const data = response.data;
 
-if (showPayment && formData.role === "writer") {
-    return <MakePayment />;
+      if (data.success) {
+        alert("Registration successful!");
+        window.location.href ="/";
+      } else {
+        alert("Registration failed: " + data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred during registration.");
+    }
+
   }
+
+  // You can handle writers similarly...
+  if (role === "writer") {
+  // Generate a unique transaction reference
+  const tx_ref = `TX-${Date.now()}`;
+
+  // Save the registration temporarily on your server
+  try {
+    await axios.post("http://localhost/project/PHP/temp_register.php", {
+      tx_ref,
+      name,
+      email,
+      password,
+      bio: formData.bio,
+      membershipType: formData.membershipType
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Could not start registration. Try again.");
+    return;
+  }
+
+  // Trigger payment popup
+  PaychanguCheckout({
+    public_key: "PUB-TEST-bQNIEHiRnn0JN8xQ2GMVawXuVuG8pRfG",
+    tx_ref: tx_ref,
+    amount:membershipFees[formData.membershipType],
+    currency: "MWK",
+    callback_url: "http://localhost:5173/PHP/payment_callback.php",  // where Paychangu will send payment status
+    return_url: "http://localhost:5173/auth/thankyou",  // redirect user after payment
+    customer: { email, first_name: name },
+    customization: {
+      title: "Writer Membership",
+      description: "Writer Registration Payment"
+    }
+  });
+}
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
@@ -102,7 +143,7 @@ if (showPayment && formData.role === "writer") {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">Full Name</label>
-                  <input placeholder="enter full name" className="w-full mt-1 p-2 border rounded-md" value={formData.name} onChange={(e) => updateFormData("name", e.target.value)} />
+                  <input placeholder="enter full name" type="text" className="w-full mt-1 p-2 border rounded-md" value={formData.name} onChange={(e) => updateFormData("name", e.target.value)} />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Email</label>
@@ -117,7 +158,7 @@ if (showPayment && formData.role === "writer") {
                   <input placeholder="confirm password" type="password" className="w-full mt-1 p-2 border rounded-md" />
                 </div>
                 
-                <button type="button" className="w-full bg-[#b13a2d] text-white py-2 rounded-md" onClick={() => setStep(2)}>
+                <button type="button" className="w-full bg-[#b13a2d] text-white py-2 rounded-md"  onClick={() => setStep(2)}>
                   Continue <ArrowRight className="inline h-4 w-4" />
                 </button>
               </div>
@@ -186,7 +227,6 @@ if (showPayment && formData.role === "writer") {
                         onChange={(e) => updateFormData("membershipType", e.target.value)}
                     >
                         <option value="" disabled selected hidden>Select membership type</option>
-                        <option value="" disabled selected hidden>Select membership type</option>
                         {Object.entries(MEMBERSHIP_TYPES).map(([key, value]) => (
                             <option key={value} value={value}>
                                 {key}
@@ -203,10 +243,11 @@ if (showPayment && formData.role === "writer") {
                            
                         </div>
                     )}
-<div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2">
                    <br /> <label htmlFor="bio" className="block text-sm font-medium">Short Bio (optional)</label>
                 <textarea type="text" placeholder="Tell readers a bit about yourself(50-100 words)"
-                 className="border border-gray-300 rounded-md focus:border-[#b13a2d] focus:outline-none h-18 p-2"/>
+                 className="border border-gray-300 rounded-md focus:border-[#b13a2d] focus:outline-none h-18 p-2 resize-none"
+                 value={formData.bio} onChange={(e) => updateFormData("bio", e.target.value)}/>
                  </div>
 
                 </div>

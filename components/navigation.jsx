@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import {react, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom"; // Use react-router-dom instead of next/navigation
 import { BookOpen, Menu, X, LogIn, ChevronDown, Home, PenTool, MessageSquare, Users } from "lucide-react";
 
@@ -15,6 +15,18 @@ export function Navigation() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const stored = localStorage.getItem("user");
+  if (stored) setUser(JSON.parse(stored));
+}, []);
+
+const handleLogout = () => {
+  localStorage.removeItem("user");
+  setUser(null);
+};
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur">
@@ -66,6 +78,15 @@ export function Navigation() {
         </div>
 
         {/* Auth Buttons */}
+
+        {user ? (
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-600">Hello, {user.name}</span>
+            <button onClick={handleLogout} className="px-4 py-2 text-sm font-small bg-[#b13a2d] text-white rounded-md hover:bg-[#8e2e24] transition-colors">
+              Logout
+            </button>
+          </div>
+        ) : (
         <div className="hidden md:flex items-center gap-2">
           <Link to="/auth/login" className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black">
             Sign In
@@ -74,11 +95,12 @@ export function Navigation() {
             Register
           </Link>
         </div>
-
+)};
         {/* Mobile Menu Button */}
         <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
+        
       </nav>
     </header>
   );
