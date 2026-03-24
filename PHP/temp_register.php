@@ -18,6 +18,8 @@ $password = $input['password'] ?? '';
 $bio = $input['bio'] ?? '';
 $membershipType = $input['membershipType'] ?? '';
 
+
+
 $stmt = $connection->prepare("INSERT INTO temp_registrations (tx_ref, name, email, password, bio, membership_type) VALUES (?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("ssssss", $tx_ref, $name, $email, $password, $bio, $membershipType);
 $stmt->execute();

@@ -4,8 +4,8 @@ import Navigation from "../components/navigation.jsx";
 import HomePage from "../components/home.jsx"; 
 import LoginPage from "../auth/login.jsx"; 
 import RegisterPage from"../auth/Register.jsx"; 
-import ThankYou from "../auth/thankyou.jsx";  
-import WriterDashboardPage from "../components/WriterDash.jsx";
+import WriterDashboardPage from "../writer/WriterDash.jsx";
+import WriterEditorPage from "../writer/writerstudio.jsx";
 
 function PublicLayout() {
   return (
@@ -29,11 +29,11 @@ function App() {
           <Route path="/" element={<HomePage />} />
          
         </Route>
-
-       <Route path="/components/WriterDash" element={<WriterDashboardPage />} />
+      <Route path="/writer/writerStudio" element={<WriterEditorPage />} />
+       <Route path="/writer/WriterDash" element={<WriterDashboardPage />} />
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
-        <Route path="/auth/thankyou" element={<ThankYou />} />
+        
       </Routes>
     </BrowserRouter>
   );

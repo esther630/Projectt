@@ -6,7 +6,7 @@ import { BookOpen, Menu, X, LogIn, ChevronDown, Home, PenTool, MessageSquare, Us
 const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "Browse Books", href: "/browse", icon: BookOpen },
-  { name: "Writers", href: "/writers", icon: PenTool },
+  { name: "Writers", href: "/writer", icon: PenTool },
   { name: "Forum", href: "/forum", icon: MessageSquare },
   { name: "About", href: "/about", icon: Users },
 ];
@@ -66,7 +66,7 @@ const handleLogout = () => {
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg p-2">
-                <Link to="/dashboard/writer" className="block px-4 py-2 hover:bg-gray-50 rounded-md">
+                <Link to="writer/writerDash" className="block px-4 py-2 hover:bg-gray-50 rounded-md">
                   <span className="font-medium text-sm">Writer Dashboard</span>
                 </Link>
                 <Link to="/dashboard/editor" className="block px-4 py-2 hover:bg-gray-50 rounded-md">
@@ -85,6 +85,7 @@ const handleLogout = () => {
             <button onClick={handleLogout} className="px-4 py-2 text-sm font-small bg-[#b13a2d] text-white rounded-md hover:bg-[#8e2e24] transition-colors">
               Logout
             </button>
+            <p className="text-sm font-medium text-gray-600">Coins: {user.coins}</p>
           </div>
         ) : (
         <div className="hidden md:flex items-center gap-2">

@@ -86,7 +86,7 @@ const handleSubmit = async () => {
   if (role === "writer") {
   // Generate a unique transaction reference
   const tx_ref = `TX-${Date.now()}`;
-
+const baseUrl = window.location.origin;
   // Save the registration temporarily on your server
   try {
     await axios.post("http://localhost/project/PHP/temp_register.php", {
@@ -109,8 +109,8 @@ const handleSubmit = async () => {
     tx_ref: tx_ref,
     amount:membershipFees[formData.membershipType],
     currency: "MWK",
-    callback_url: "http://localhost:5173/PHP/payment_callback.php",  // where Paychangu will send payment status
-    return_url: "http://localhost:5173/auth/thankyou",  // redirect user after payment
+    callback_url: "http://localhost/project/PHP/succes.php",  // where Paychangu will send payment status
+    return_url: "http://localhost/project/PHP/succes.php",  // redirect user after payment
     customer: { email, first_name: name },
     customization: {
       title: "Writer Membership",
