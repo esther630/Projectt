@@ -6,6 +6,9 @@ import LoginPage from "../auth/login.jsx";
 import RegisterPage from"../auth/Register.jsx"; 
 import WriterDashboardPage from "../writer/WriterDash.jsx";
 import WriterEditorPage from "../writer/writerstudio.jsx";
+import GrammarChecker from "../writer/grammar.jsx";
+import CreateBook from "../writer/createbook.jsx";
+
 
 function PublicLayout() {
   return (
@@ -27,12 +30,14 @@ function App() {
        
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
-         
+        
         </Route>
+        <Route path="/writer/createbook" element={<CreateBook />} /> 
       <Route path="/writer/writerStudio" element={<WriterEditorPage />} />
        <Route path="/writer/WriterDash" element={<WriterDashboardPage />} />
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
+          <Route path="/writer/grammar" element={<GrammarChecker />} />
         
       </Routes>
     </BrowserRouter>

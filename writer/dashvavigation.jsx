@@ -45,6 +45,18 @@ export function DashboardLayout({ children, type }) {
   const navItems = type === "writer" ? writerNavItems : editorNavItems;
   const title = type === "writer" ? "Writer Dashboard" : "Editor Dashboard";
 
+   const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
+
+
+
+  const handleLogout = () => {
+  localStorage.removeItem("user");
+  setUser(null);
+};
+
   return (
     <div className="flex min-h-screen bg-[#FAF8F5]">
       {/* Mobile Sidebar Overlay */}
@@ -115,8 +127,18 @@ export function DashboardLayout({ children, type }) {
           <button
             className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
           >
-            <LogOut className="h-5 w-5" />
-            Sign Out
+            <LogOut  className="h-5 w-5" />
+         
+        {user ? (
+
+          
+            <button onClick={handleLogout} className="px-4 py-2 text-sm font-small ">
+             Sign out
+            </button>
+          
+        ) : (
+      <div><p>Sign out</p></div>
+)}
             <input type="color" name="" id="" />
           </button>
         </div>
@@ -135,13 +157,15 @@ export function DashboardLayout({ children, type }) {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold">{title}</h1>
+            <h1 className="text-lg font-semibold">{title} </h1>
+            
           </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
               <Users className="h-4 w-4 text-primary" />
             </div>
           </div>
+          <div className=" font-semibold">Welcome, {user?.name}</div>
         </header>
 
        

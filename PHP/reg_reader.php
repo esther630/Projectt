@@ -1,63 +1,65 @@
 <?php
 header("Content-Type: application/json");
-
-
-include_once('server.php');
-
-// Allow CORS for development
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit();
 
-// Read JSON input
+session_start();
+include_once('server.php');
+
 $input = json_decode(file_get_contents("php://input"), true);
 
-$name = trim($input['name'] ?? '');
-$email = trim($input['email'] ?? '');
+$name     = trim($input['name']     ?? '');
+$email    = trim($input['email']    ?? '');
 $password = trim($input['password'] ?? '');
 
-
 if (empty($name) || empty($email) || empty($password)) {
-    echo json_encode([
-        "success" => false,
-        "message" => "All fields are required."
-    ]);
+    echo json_encode(["success" => false, "message" => "All fields are required."]);
     exit;
 }
 
-
-$stmt = $connection->prepare("SELECT * FROM users WHERE email = ?");
+// Check if email already exists
+$stmt = $connection->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Email is already registered."
-    ]);
-    exit;
-}
-
+$stmt->get_result()->num_rows > 0 && die(json_encode([
+    "success" => false,
+    "message" => "Email is already registered."
+]));
 
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-
-$stmt = $connection->prepare("INSERT INTO users (username,full_name, email, password, role) VALUES ('$name',?, ?, ?, 'reader')");
-$stmt->bind_param("sss", $name, $email, $hashedPassword);
+// Fixed: use fully parameterized query (no string interpolation)
+$stmt = $connection->prepare("INSERT INTO users (username, full_name, email, password, role) VALUES (?, ?, ?, ?, 'reader')");
+$stmt->bind_param("ssss", $name, $name, $email, $hashedPassword);
 
 if ($stmt->execute()) {
+    $user_id = $connection->insert_id;
+
+    // Set session so frontend knows who is logged in
+    $_SESSION['user'] = [
+        'id'    => $user_id,
+        'name'  => $name,
+        'email' => $email,
+        'role'  => 'reader'
+    ];
+
     echo json_encode([
         "success" => true,
-        "message" => "User registered successfully"
+        "message" => "User registered successfully",
+        "user" => [
+            "id"    => $user_id,
+            "name"  => $name,
+            "email" => $email,
+            "role"  => "reader"
+        ]
     ]);
 } else {
-    echo json_encode([
-        "success" => false,
-        "message" => "Database error: " . $stmt->error
-    ]);
+    echo json_encode(["success" => false, "message" => "Database error: " . $stmt->error]);
 }
 
 $stmt->close();
 $connection->close();
+?>

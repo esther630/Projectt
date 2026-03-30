@@ -26,27 +26,52 @@ export function LoginPage() {
   };
 
 
-  const handleLogin = async () => {
-    const { email, password } = formData;
-    if (!email || !password) {
-     alert("Email & password required");
-     return;
+  // Replace your existing handleLogin with this full corrected version
+
+const handleLogin = async () => {
+  const { email, password } = formData;
+
+  if (!email || !password) {
+    alert("Email & password required");
+    return;
+  }
+
+  try {
+    const res = await axios.post("http://localhost/project/PHP/login.php", { email, password });
+
+    if (res.data.success) {
+      // ✅ Save all user fields including role
+      const user = {
+        name: res.data.full_name,
+        username: res.data.username,
+        role: res.data.role,
+        membershipType: res.data.membership_type ?? null,
+        membershipExpiry: res.data.membership_expiry ?? null,
+      };
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      alert("Login successful!");
+
+      // ✅ Redirect based on role
+      const role = res.data.role;
+      if (role === "editor") {
+        navigate("/editor/editorDash");  // editor goes to editor dashboard
+      } else if (role === "writer") {
+        navigate("/writer/writerDash");  // writer goes to writer dashboard
+      } else {
+        navigate("/");                  // reader goes to home
+      }
+
+    } else {
+      alert(res.data.message);
     }
 
-    try {
-      const res = await axios.post("http://localhost/project/PHP/login.php", { email, password });
-      if (res.data.success) {
-        localStorage.setItem("user", JSON.stringify({ name: res.data.full_name, username: res.data.username }));
-        setUser({ name: res.data.full_name, username: res.data.username });
-        navigate("/"); // ✅ redirect to home after login
-        alert("Login successful!");
-
-      } else alert(res.data.message);
-    } catch (err) {
-      console.error(err);
-      alert("Error during login");
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Error during login");
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem("user");

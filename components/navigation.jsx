@@ -16,11 +16,12 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const [user, setUser] = useState(null);
+  {const [user, setUser] = useState(null);}
+  const user = JSON.parse(localStorage.getItem("user"));
 
 useEffect(() => {
   const stored = localStorage.getItem("user");
-  if (stored) setUser(JSON.parse(stored));
+  {/*if (stored) setUser(JSON.parse(stored));*/}
 }, []);
 
 const handleLogout = () => {
@@ -96,7 +97,7 @@ const handleLogout = () => {
             Register
           </Link>
         </div>
-)};
+)}
         {/* Mobile Menu Button */}
         <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

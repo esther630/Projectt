@@ -23,12 +23,14 @@ $result = $stmt->get_result();
 
 if ($user = $result->fetch_assoc()) {
     if (password_verify($password, $user['password'])) {
-        echo json_encode([
-            "success" => true,
-            "message" => "Login successful",
-            "username" => $user['username'],
-            "full_name" => $user['full_name']
-        ]);
+     echo json_encode([
+  "success" => true,
+  "full_name" => $user['full_name'],
+  "username" => $user['username'],
+  "role" => $user['role'],             
+  "membership_type" => $user['membership_type'],
+  "membership_expiry" => $user['membership_expiry'],
+]);
     } else {
         echo json_encode(["success" => false, "message" => "Incorrect password"]);
     }
